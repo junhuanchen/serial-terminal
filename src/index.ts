@@ -59,6 +59,10 @@ term.loadAddon(fitAddon);
 
 term.loadAddon(new WebLinksAddon());
 
+declare let Module: any;
+const lerpResult = (Module as any).lerp(2, 4, 1.5);
+console.log('lerp result: ' + lerpResult);
+
 const encoder = new TextEncoder();
 let toFlush = '';
 term.onData((data) => {

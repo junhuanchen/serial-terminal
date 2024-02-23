@@ -27,6 +27,15 @@
   </style>
 </head>
 <body>
+
+<script>
+  Module = {};
+  Module.onRuntimeInitialized = function() { 
+    console.log('dls lerp result: ' + Module.lerp(1, 2, 0.5));
+  }
+</script>
+<script src="demo.js"></script>
+
 <div class="options">
   <label for="ports">Port:</label>
   <select id="ports">
@@ -88,11 +97,10 @@
   <input id="autoconnect" type="checkbox">
   <label class="checkbox" for="autoconnect">Automatically connect</label>
 
-  <div class="info">
-    <a href="https://github.com/GoogleChromeLabs/serial-terminal">Source Code on GitHub</a>
-  </div>
 </div>
 <div id="terminal"></div>
+
 <script type="module" src="/src/index.ts"></script>
+
 </body>
 </html>
