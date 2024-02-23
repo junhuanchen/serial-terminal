@@ -514,3 +514,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
+
+document.getElementById('debug1').addEventListener('click', () => {
+  if (port) {
+    console.log('debug1');
+
+    const writer = port.writable.getWriter();
+
+    // Uint8Array FF FF 01 0A 03 29 00 A0 0F 00 00 00 00 19
+    const buf = new Uint8Array(14);
+    buf[0] = 0xFF;
+    buf[1] = 0xFF;
+    buf[2] = 0x01;
+    buf[3] = 0x0A;
+    buf[4] = 0x03;
+    buf[5] = 0x29;
+    buf[6] = 0x00;
+    buf[7] = 0xA0;
+    buf[8] = 0x0F;
+    buf[9] = 0x00;
+    buf[10] = 0x00;
+    buf[11] = 0x00;
+    buf[12] = 0x00;
+    buf[13] = 0x19;
+    writer.write(buf);
+
+    writer.releaseLock();
+  }
+});
+
+document.getElementById('debug2').addEventListener('click', () => {
+  if (port) {
+    console.log('debug2');
+
+    const writer = port.writable.getWriter();
+
+    // FF FF 01 09 03 2A 00 00 E8 03 00 00 DD
+    const buf = new Uint8Array(13);
+    buf[0] = 0xFF;
+    buf[1] = 0xFF;
+    buf[2] = 0x01;
+    buf[3] = 0x09;
+    buf[4] = 0x03;
+    buf[5] = 0x2A;
+    buf[6] = 0x00;
+    buf[7] = 0x00;
+    buf[8] = 0xE8;
+    buf[9] = 0x03;
+    buf[10] = 0x00;
+    buf[11] = 0x00;
+    buf[12] = 0xDD;
+    writer.write(buf);
+
+    writer.releaseLock();
+  }
+});
