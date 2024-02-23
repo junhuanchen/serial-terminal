@@ -22,6 +22,8 @@ import {
   serial as polyfill, SerialPort as SerialPortPolyfill,
 } from 'web-serial-polyfill';
 
+declare let Module: any;
+
 /**
  * Elements of the port selection dropdown extend HTMLOptionElement so that
  * they can reference the SerialPort they represent.
@@ -58,10 +60,6 @@ const fitAddon = new FitAddon();
 term.loadAddon(fitAddon);
 
 term.loadAddon(new WebLinksAddon());
-
-declare let Module: any;
-const lerpResult = (Module as any).lerp(2, 4, 1.5);
-console.log('lerp result: ' + lerpResult);
 
 const encoder = new TextEncoder();
 let toFlush = '';
@@ -273,6 +271,9 @@ async function connectToPort(): Promise<void> {
     term.writeln('<CONNECTED>');
     connectButton.textContent = 'Disconnect';
     connectButton.disabled = false;
+
+    const lerpResult = (Module as any).lerp(2, 4, 1.5);
+    console.log('lerp result: ' + lerpResult);
   } catch (e) {
     console.error(e);
     if (e instanceof Error) {
