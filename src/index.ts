@@ -34,6 +34,7 @@ declare class PortOption extends HTMLOptionElement {
 
 let portSelector: HTMLSelectElement;
 let connectButton: HTMLButtonElement;
+let searchButton: HTMLButtonElement;
 let baudRateSelector: HTMLSelectElement;
 let customBaudRateInput: HTMLInputElement;
 let dataBitsSelector: HTMLSelectElement;
@@ -61,9 +62,10 @@ term.loadAddon(fitAddon);
 
 term.loadAddon(new WebLinksAddon());
 
-const encoder = new TextEncoder();
+// const encoder = new TextEncoder();
 // const toFlush = '';
 term.onData((data) => {
+  console.log(data);
   // if (echoCheckbox.checked) {
   //   term.write(data);
   // }
@@ -86,7 +88,24 @@ term.onData((data) => {
   //   writer.write(encoder.encode(data));
   // }
 
-  writer.write(encoder.encode(data));
+  // Uint8Array FF FF 01 02 01 FB
+  // const buf = new Uint8Array(6);
+  // buf[0] = 0xFF;
+  // buf[1] = 0xFF;
+  // buf[2] = 0x01;
+  // buf[3] = 0x02;
+  // buf[4] = 0x01;
+  // buf[5] = 0xFB;
+  // writer.write(buf);
+
+  term.writeln('send:' + data);
+
+  // data = "FF FF 01 02 01 FB" 转 Uint8Array
+  const dataArr = data.split(' ').map((byte) => parseInt(byte, 16));
+  const buf = new Uint8Array(dataArr);
+  writer.write(buf);
+
+  // writer.write(encoder.encode(data));
 
   writer.releaseLock();
 });
@@ -128,12 +147,19 @@ function addNewPort(port: SerialPort | SerialPortPolyfill): PortOption {
   const tmp = port.getInfo();
   console.log(tmp); // usbProductId 0x7523 usbVendorId 0x1a86 is CH34x
 
-  // 显示为 Port 1 pid 0x7523 vid 0x1a86 字符串，注意 ${tmp.usbProductId} 为十进制
-  // portOption.textContent = `Port ${portCounter++}`;
-  portOption.textContent = `Port ${portCounter++} pid 0x${tmp.usbProductId.toString(16)} vid 0x${tmp.usbVendorId.toString(16)}`;
+  // TypeError: Cannot read properties of undefined (reading 'toString')
+  if (tmp.usbProductId != undefined && tmp.usbVendorId != undefined) {
+    portOption.textContent = `Port ${portCounter++} pid 0x${tmp.usbProductId.toString(16)} vid 0x${tmp.usbVendorId.toString(16)}`;
+  } else {
+    portOption.textContent = `Port ${portCounter++}`;
+  }
 
   portOption.port = port;
   portSelector.appendChild(portOption);
+
+  if (portSelector.options.length > 1) {
+    portSelector.selectedIndex = portSelector.options.length - 1;
+  }
   return portOption;
 }
 
@@ -320,7 +346,12 @@ async function connectToPort(): Promise<void> {
 
         if (value) {
           await new Promise<void>((resolve) => {
-            term.write(value, resolve);
+            console.log(value);
+            // term.write(value, resolve);
+            // 转 16 进制输出
+            term.writeln('recv:' + new Uint8Array(value).reduce((acc, byte) => {
+              return acc + byte.toString(16).padStart(2, '0') + ' ';
+            }, ''), resolve);
           });
         }
         if (done) {
@@ -403,6 +434,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   portSelector = document.getElementById('ports') as HTMLSelectElement;
 
+  searchButton = document.getElementById('search') as HTMLButtonElement;
+  searchButton.addEventListener('click', () => {
+    if (port) {
+      disconnectFromPort();
+    }
+    portSelector.selectedIndex = 0;
+    connectToPort();
+  });
+
   connectButton = document.getElementById('connect') as HTMLButtonElement;
   connectButton.addEventListener('click', () => {
     if (port) {
@@ -454,6 +494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const serial = usePolyfill ? polyfill : navigator.serial;
   const ports: (SerialPort | SerialPortPolyfill)[] = await serial.getPorts();
   ports.forEach((port) => addNewPort(port));
+  connectToPort(); // 遍历完自动链接历史记录最后一个设备
 
   // These events are not supported by the polyfill.
   // https://github.com/google/web-serial-polyfill/issues/20
