@@ -23,6 +23,7 @@ module.exports = {
     ],
     "rules": {
         "@typescript-eslint/no-explicit-any": "off",
+        "max-len": ["error", { "code": 256 }],
     },
     "env": {
         "browser": true,

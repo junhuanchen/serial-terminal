@@ -40,9 +40,9 @@ let dataBitsSelector: HTMLSelectElement;
 let paritySelector: HTMLSelectElement;
 let stopBitsSelector: HTMLSelectElement;
 let flowControlCheckbox: HTMLInputElement;
-let echoCheckbox: HTMLInputElement;
-let flushOnEnterCheckbox: HTMLInputElement;
-let autoconnectCheckbox: HTMLInputElement;
+// let echoCheckbox: HTMLInputElement;
+// let flushOnEnterCheckbox: HTMLInputElement;
+// let autoconnectCheckbox: HTMLInputElement;
 
 let portCounter = 1;
 let port: SerialPort | SerialPortPolyfill | undefined;
@@ -62,11 +62,11 @@ term.loadAddon(fitAddon);
 term.loadAddon(new WebLinksAddon());
 
 const encoder = new TextEncoder();
-let toFlush = '';
+// const toFlush = '';
 term.onData((data) => {
-  if (echoCheckbox.checked) {
-    term.write(data);
-  }
+  // if (echoCheckbox.checked) {
+  //   term.write(data);
+  // }
 
   if (port?.writable == null) {
     console.warn(`unable to find writable port`);
@@ -75,16 +75,18 @@ term.onData((data) => {
 
   const writer = port.writable.getWriter();
 
-  if (flushOnEnterCheckbox.checked) {
-    toFlush += data;
-    if (data === '\r') {
-      writer.write(encoder.encode(toFlush));
-      writer.releaseLock();
-      toFlush = '';
-    }
-  } else {
-    writer.write(encoder.encode(data));
-  }
+  // if (flushOnEnterCheckbox.checked) {
+  //   toFlush += data;
+  //   if (data === '\r') {
+  //     writer.write(encoder.encode(toFlush));
+  //     writer.releaseLock();
+  //     toFlush = '';
+  //   }
+  // } else {
+  //   writer.write(encoder.encode(data));
+  // }
+
+  writer.write(encoder.encode(data));
 
   writer.releaseLock();
 });
@@ -120,7 +122,16 @@ function findPortOption(port: SerialPort | SerialPortPolyfill):
  */
 function addNewPort(port: SerialPort | SerialPortPolyfill): PortOption {
   const portOption = document.createElement('option') as PortOption;
-  portOption.textContent = `Port ${portCounter++}`;
+  // portOption.textContent = `Port ${portCounter++}`;
+
+  // port.getInfo()
+  const tmp = port.getInfo();
+  console.log(tmp); // usbProductId 0x7523 usbVendorId 0x1a86 is CH34x
+
+  // 显示为 Port 1 pid 0x7523 vid 0x1a86 字符串，注意 ${tmp.usbProductId} 为十进制
+  // portOption.textContent = `Port ${portCounter++}`;
+  portOption.textContent = `Port ${portCounter++} pid 0x${tmp.usbProductId.toString(16)} vid 0x${tmp.usbVendorId.toString(16)}`;
+
   portOption.port = port;
   portSelector.appendChild(portOption);
   return portOption;
@@ -145,43 +156,43 @@ function maybeAddNewPort(port: SerialPort | SerialPortPolyfill): PortOption {
 /**
  * Download the terminal's contents to a file.
  */
-function downloadTerminalContents(): void {
-  if (!term) {
-    throw new Error('no terminal instance found');
-  }
+// function downloadTerminalContents(): void {
+//   if (!term) {
+//     throw new Error('no terminal instance found');
+//   }
 
-  if (term.rows === 0) {
-    console.log('No output yet');
-    return;
-  }
+//   if (term.rows === 0) {
+//     console.log('No output yet');
+//     return;
+//   }
 
-  term.selectAll();
-  const contents = term.getSelection();
-  term.clearSelection();
-  const linkContent = URL.createObjectURL(
-      new Blob([new TextEncoder().encode(contents).buffer],
-          {type: 'text/plain'}));
-  const fauxLink = document.createElement('a');
-  fauxLink.download = `terminal_content_${new Date().getTime()}.txt`;
-  fauxLink.href = linkContent;
-  fauxLink.click();
-}
+//   term.selectAll();
+//   const contents = term.getSelection();
+//   term.clearSelection();
+//   const linkContent = URL.createObjectURL(
+//       new Blob([new TextEncoder().encode(contents).buffer],
+//           {type: 'text/plain'}));
+//   const fauxLink = document.createElement('a');
+//   fauxLink.download = `terminal_content_${new Date().getTime()}.txt`;
+//   fauxLink.href = linkContent;
+//   fauxLink.click();
+// }
 
 /**
  * Clear the terminal's contents.
  */
-function clearTerminalContents(): void {
-  if (!term) {
-    throw new Error('no terminal instance found');
-  }
+// function clearTerminalContents(): void {
+//   if (!term) {
+//     throw new Error('no terminal instance found');
+//   }
 
-  if (term.rows === 0) {
-    console.log('No output yet');
-    return;
-  }
+//   if (term.rows === 0) {
+//     console.log('No output yet');
+//     return;
+//   }
 
-  term.clear();
-}
+//   term.clear();
+// }
 
 /**
  * Sets |port| to the currently selected port. If none is selected then the
@@ -383,12 +394,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const downloadOutput =
-    document.getElementById('download') as HTMLSelectElement;
-  downloadOutput.addEventListener('click', downloadTerminalContents);
+  // const downloadOutput =
+  //   document.getElementById('download') as HTMLSelectElement;
+  // downloadOutput.addEventListener('click', downloadTerminalContents);
 
-  const clearOutput = document.getElementById('clear') as HTMLSelectElement;
-  clearOutput.addEventListener('click', clearTerminalContents);
+  // const clearOutput = document.getElementById('clear') as HTMLSelectElement;
+  // clearOutput.addEventListener('click', clearTerminalContents);
 
   portSelector = document.getElementById('ports') as HTMLSelectElement;
 
@@ -416,29 +427,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   paritySelector = document.getElementById('parity') as HTMLSelectElement;
   stopBitsSelector = document.getElementById('stopbits') as HTMLSelectElement;
   flowControlCheckbox = document.getElementById('rtscts') as HTMLInputElement;
-  echoCheckbox = document.getElementById('echo') as HTMLInputElement;
-  flushOnEnterCheckbox =
-      document.getElementById('enter_flush') as HTMLInputElement;
-  autoconnectCheckbox =
-      document.getElementById('autoconnect') as HTMLInputElement;
+  // echoCheckbox = document.getElementById('echo') as HTMLInputElement;
+  // flushOnEnterCheckbox =
+  //     document.getElementById('enter_flush') as HTMLInputElement;
+  // autoconnectCheckbox =
+  //     document.getElementById('autoconnect') as HTMLInputElement;
 
-  const convertEolCheckbox =
-      document.getElementById('convert_eol') as HTMLInputElement;
-  const convertEolCheckboxHandler = () => {
-    term.options.convertEol = convertEolCheckbox.checked;
-  };
-  convertEolCheckbox.addEventListener('change', convertEolCheckboxHandler);
-  convertEolCheckboxHandler();
+  // const convertEolCheckbox =
+  //     document.getElementById('convert_eol') as HTMLInputElement;
+  // const convertEolCheckboxHandler = () => {
+  //   term.options.convertEol = convertEolCheckbox.checked;
+  // };
+  // convertEolCheckbox.addEventListener('change', convertEolCheckboxHandler);
+  // convertEolCheckboxHandler();
 
-  const polyfillSwitcher =
-      document.getElementById('polyfill_switcher') as HTMLAnchorElement;
-  if (usePolyfill) {
-    polyfillSwitcher.href = './';
-    polyfillSwitcher.textContent = 'Switch to native API';
-  } else {
-    polyfillSwitcher.href = './?polyfill';
-    polyfillSwitcher.textContent = 'Switch to API polyfill';
-  }
+  // const polyfillSwitcher =
+  //     document.getElementById('polyfill_switcher') as HTMLAnchorElement;
+  // if (usePolyfill) {
+  //   polyfillSwitcher.href = './';
+  //   polyfillSwitcher.textContent = 'Switch to native API';
+  // } else {
+  //   polyfillSwitcher.href = './?polyfill';
+  //   polyfillSwitcher.textContent = 'Switch to API polyfill';
+  // }
 
   const serial = usePolyfill ? polyfill : navigator.serial;
   const ports: (SerialPort | SerialPortPolyfill)[] = await serial.getPorts();
@@ -449,10 +460,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!usePolyfill) {
     navigator.serial.addEventListener('connect', (event) => {
       const portOption = addNewPort(event.target as SerialPort);
-      if (autoconnectCheckbox.checked) {
-        portOption.selected = true;
-        connectToPort();
-      }
+      // if (autoconnectCheckbox.checked) {
+      portOption.selected = true;
+      connectToPort();
+      // }
     });
     navigator.serial.addEventListener('disconnect', (event) => {
       const portOption = findPortOption(event.target as SerialPort);
