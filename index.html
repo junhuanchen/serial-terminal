@@ -29,13 +29,49 @@
 <body>
 
 <script>
-  Module = {};
-  Module.onRuntimeInitialized = function() { 
-    console.log('dls lerp result: ' + Module.lerp(1, 2, 0.5));
+  Module = {
+    serial_rx:[],
+    serial_tx:[],
+    serial_wk: false,
+    // printSomeInfo: function() {
+    //   console.log('printSomeInfo');
+    // },
+  };
+  Module.onRuntimeInitialized = function() {
+    console.log('dls config result: ' + Module.config(10, 20, 30));
   }
   console.log('dls 1', Module);
 </script>
 <script src="demo.js"></script>
+
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
 
 <div class="options">
 

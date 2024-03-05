@@ -6,6 +6,7 @@ export default {
   base: './',
   plugins: [
     eslint(),
+    // eslint-disable-next-line new-cap
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',

@@ -265,6 +265,7 @@ function markDisconnected(): void {
   stopBitsSelector.disabled = false;
   flowControlCheckbox.disabled = false;
   port = undefined;
+  (Module as any).serial_wk = true;
 }
 
 /**
@@ -309,8 +310,31 @@ async function connectToPort(): Promise<void> {
     connectButton.textContent = 'Disconnect';
     connectButton.disabled = false;
 
-    const lerpResult = (Module as any).lerp(2, 4, 1.5);
-    console.log('lerp result: ' + lerpResult);
+    // const configResult = (Module as any).config(2, 4, 1.5);
+    // console.log('config result: ' + configResult);
+
+    if ((Module as any).serial_tx_timer) {
+      clearInterval((Module as any).serial_tx_timer);
+    }
+
+    (Module as any).serial_tx_timer = setInterval(() => {
+      if (port && port.writable) {
+        // console.log('debug3');
+
+        const writer = port.writable.getWriter();
+
+        if ((Module as any).serial_tx.length > 0) {
+          const buf = (Module as any).serial_tx.shift();
+          // console.log('send:', buf);
+          writer.write(buf);
+        }
+
+        writer.releaseLock();
+      }
+    }, 1);
+
+    // (Module as any).unit_test();
+    (Module as any).serial_wk = true;
   } catch (e) {
     console.error(e);
     if (e instanceof Error) {
@@ -346,12 +370,14 @@ async function connectToPort(): Promise<void> {
 
         if (value) {
           await new Promise<void>((resolve) => {
-            console.log(value);
+            // console.log('recv ', value);
             // term.write(value, resolve);
             // 转 16 进制输出
-            term.writeln('recv:' + new Uint8Array(value).reduce((acc, byte) => {
-              return acc + byte.toString(16).padStart(2, '0') + ' ';
-            }, ''), resolve);
+            // term.writeln('recv:' + new Uint8Array(value).reduce((acc, byte) => {
+            //   return acc + byte.toString(16).padStart(2, '0') + ' ';
+            // }, ''), resolve);
+            (Module as any).serial_rx.push(Array.from(new Uint8Array(value)));
+            resolve();
           });
         }
         if (done) {
@@ -519,27 +545,34 @@ document.getElementById('debug1').addEventListener('click', () => {
   if (port) {
     console.log('debug1');
 
-    const writer = port.writable.getWriter();
+    // serial_wk
+    (async () => {
+      for (let i = 0; i < 10; i++) {
+        console.log('scsPing', i, await Module.scsPing(i));
+      }
+    } )();
 
-    // Uint8Array FF FF 01 0A 03 29 00 A0 0F 00 00 00 00 19
-    const buf = new Uint8Array(14);
-    buf[0] = 0xFF;
-    buf[1] = 0xFF;
-    buf[2] = 0x01;
-    buf[3] = 0x0A;
-    buf[4] = 0x03;
-    buf[5] = 0x29;
-    buf[6] = 0x00;
-    buf[7] = 0xA0;
-    buf[8] = 0x0F;
-    buf[9] = 0x00;
-    buf[10] = 0x00;
-    buf[11] = 0x00;
-    buf[12] = 0x00;
-    buf[13] = 0x19;
-    writer.write(buf);
+    // const writer = port.writable.getWriter();
 
-    writer.releaseLock();
+    // // Uint8Array FF FF 01 0A 03 29 00 A0 0F 00 00 00 00 19
+    // const buf = new Uint8Array(14);
+    // buf[0] = 0xFF;
+    // buf[1] = 0xFF;
+    // buf[2] = 0x01;
+    // buf[3] = 0x0A;
+    // buf[4] = 0x03;
+    // buf[5] = 0x29;
+    // buf[6] = 0x00;
+    // buf[7] = 0xA0;
+    // buf[8] = 0x0F;
+    // buf[9] = 0x00;
+    // buf[10] = 0x00;
+    // buf[11] = 0x00;
+    // buf[12] = 0x00;
+    // buf[13] = 0x19;
+    // writer.write(buf);
+
+    // writer.releaseLock();
   }
 });
 
