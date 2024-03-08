@@ -24,6 +24,15 @@ import {
 
 declare let Module: any;
 
+Module['serial_rx'] = [];
+Module['serial_tx'] = [];
+Module['serial_wk'] = false;
+
+console.log('load scslib', Module);
+
+import {App} from './main';
+console.log('load vue3', App);
+
 /**
  * Elements of the port selection dropdown extend HTMLOptionElement so that
  * they can reference the SerialPort they represent.

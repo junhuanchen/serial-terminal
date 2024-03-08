@@ -29,49 +29,86 @@
 <body>
 
 <script>
-  Module = {
-    serial_rx:[],
-    serial_tx:[],
-    serial_wk: false,
-    // printSomeInfo: function() {
-    //   console.log('printSomeInfo');
-    // },
+  var Module = {
+    onRuntimeInitialized: function () {
+      console.log('dls config result: ' + Module.config(10, 20, 30));
+    }
   };
-  Module.onRuntimeInitialized = function() {
-    console.log('dls config result: ' + Module.config(10, 20, 30));
-  }
-  console.log('dls 1', Module);
 </script>
-<script src="demo.js"></script>
+<script src="release/scslib.js"></script>
 
+<div id="app"></div>
+
+<!-- 
 <div>
   <canvas id="myChart"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-  const ctx = document.getElementById('myChart');
-
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-      datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
+  
+  <script src="https://cdn.staticfile.org/Chart.js/3.9.1/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('myChart');
+    const data = {
+      labels: [
+        '1709890173524',
+        '1709890173534',
+        '1709890173544',
+        '1709890173554',
+      ],
+      datasets: [
+        {
+          type: 'line',
+          label: 'ID0',
+          data: [45, 49, 52, 48],
+        }, 
+        // {
+        //   type: 'line',
+        //   label: '折线图数据集',
+        //   data: [50, 40, 45, 49],
+        // }
+      ]
+    };
+  
+    const config = {
+      type: 'scatter',
+      data: data,
+      options: {
+        responsive: true, // 设置图表为响应式，根据屏幕窗口变化而变化
+        maintainAspectRatio: false,// 保持图表原有比例
+        scales: {
+          y: {
+            beginAtZero: true
+          }
         }
       }
-    }
-  });
-</script>
+    };
+    const myChart = new Chart(ctx, config);
+  
+    // 初始化 ping 所有设备，并产生对应的曲线
+  
+    setInterval(() => {
+      // console.log('myChart.data.datasets', myChart.data.datasets);
+      for (let i = 0; i < 3; i++) {
+        if (myChart.data.datasets[i]) {
+          myChart.data.labels.push(new Date().getTime());
+          myChart.data.datasets[i].data.push(Math.floor(Math.random() * 4095));
+          myChart.update();
+          if (myChart.data.labels.length > 100) {
+            myChart.data.labels.shift();
+            myChart.data.datasets[i].data.shift();
+          }
+        } else {
+          myChart.data.datasets.push({
+            type: 'line',
+            label: 'ID' + i,
+            data: [Math.floor(Math.random() * 4095)],
+          });
+        }
+      }
+    }, 1000);
+    
+  </script>
+    
+</div>
+ -->
 
 <div class="options">
 
@@ -149,7 +186,8 @@
  -->
 
 </div>
-<div id="terminal"></div>
+
+<div id="terminal" hidden></div>
 
 <script type="module" src="/src/index.ts"></script>
 

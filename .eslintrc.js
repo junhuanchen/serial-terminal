@@ -15,20 +15,47 @@
  */
 
 module.exports = {
-    "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
-        "google"
+  root: true,
+
+  extends: [
+    'plugin:vue/essential',
+    'plugin:vue/vue3-recommended',
+    'plugin:@typescript-eslint/recommended',
+    '@vue/typescript',
+    // "google"
+  ],
+
+  plugins: [
+    '@typescript-eslint',
+  ],
+
+  env: {
+    browser : true,
+    node    : true,
+    builtin : true,
+    es6     : true,
+  },
+
+  parser: 'vue-eslint-parser',
+
+  parserOptions: {
+    extraFileExtensions : ['.vue'],
+    parser              : '@typescript-eslint/parser',
+    project             : './tsconfig.json',
+    sourceType          : 'module',
+  },
+
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "max-len": ["error", { "code": 256 }],
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "extendDefaults": true,
+        "types": {
+          "{}": false
+        }
+      }
     ],
-    "rules": {
-        "@typescript-eslint/no-explicit-any": "off",
-        "max-len": ["error", { "code": 256 }],
-    },
-    "env": {
-        "browser": true,
-        "es6": true
-    },
-    "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],
-  }
+  },
+}
