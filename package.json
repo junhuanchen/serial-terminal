@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@types/w3c-web-serial": "^1.0.3",
+    "chart.js": "^4.4.2",
     "naive-ui": "latest",
     "vue": "^3.4.21",
     "vue-router": "latest",
@@ -22,6 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/typescript": "^1.8.20",

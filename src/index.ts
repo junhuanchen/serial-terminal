@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Terminal} from 'xterm';
-import {FitAddon} from 'xterm-addon-fit';
-import {WebLinksAddon} from 'xterm-addon-web-links';
-import 'xterm/css/xterm.css';
+// import {Terminal} from 'xterm';
+// import {FitAddon} from 'xterm-addon-fit';
+// import {WebLinksAddon} from 'xterm-addon-web-links';
+// import 'xterm/css/xterm.css';
 import {
   serial as polyfill, SerialPort as SerialPortPolyfill,
 } from 'web-serial-polyfill';
@@ -62,62 +62,62 @@ const urlParams = new URLSearchParams(window.location.search);
 const usePolyfill = urlParams.has('polyfill');
 const bufferSize = 8 * 1024; // 8kB
 
-const term = new Terminal({
-  scrollback: 10_000,
-});
+// const term = new Terminal({
+//   scrollback: 10_000,
+// });
 
-const fitAddon = new FitAddon();
-term.loadAddon(fitAddon);
+// const fitAddon = new FitAddon();
+// term.loadAddon(fitAddon);
 
-term.loadAddon(new WebLinksAddon());
+// term.loadAddon(new WebLinksAddon());
 
-// const encoder = new TextEncoder();
-// const toFlush = '';
-term.onData((data) => {
-  console.log(data);
-  // if (echoCheckbox.checked) {
-  //   term.write(data);
-  // }
+// // const encoder = new TextEncoder();
+// // const toFlush = '';
+// term.onData((data) => {
+//   console.log(data);
+//   // if (echoCheckbox.checked) {
+//   //   term.write(data);
+//   // }
 
-  if (port?.writable == null) {
-    console.warn(`unable to find writable port`);
-    return;
-  }
+//   if (port?.writable == null) {
+//     console.warn(`unable to find writable port`);
+//     return;
+//   }
 
-  const writer = port.writable.getWriter();
+//   const writer = port.writable.getWriter();
 
-  // if (flushOnEnterCheckbox.checked) {
-  //   toFlush += data;
-  //   if (data === '\r') {
-  //     writer.write(encoder.encode(toFlush));
-  //     writer.releaseLock();
-  //     toFlush = '';
-  //   }
-  // } else {
-  //   writer.write(encoder.encode(data));
-  // }
+//   // if (flushOnEnterCheckbox.checked) {
+//   //   toFlush += data;
+//   //   if (data === '\r') {
+//   //     writer.write(encoder.encode(toFlush));
+//   //     writer.releaseLock();
+//   //     toFlush = '';
+//   //   }
+//   // } else {
+//   //   writer.write(encoder.encode(data));
+//   // }
 
-  // Uint8Array FF FF 01 02 01 FB
-  // const buf = new Uint8Array(6);
-  // buf[0] = 0xFF;
-  // buf[1] = 0xFF;
-  // buf[2] = 0x01;
-  // buf[3] = 0x02;
-  // buf[4] = 0x01;
-  // buf[5] = 0xFB;
-  // writer.write(buf);
+//   // Uint8Array FF FF 01 02 01 FB
+//   // const buf = new Uint8Array(6);
+//   // buf[0] = 0xFF;
+//   // buf[1] = 0xFF;
+//   // buf[2] = 0x01;
+//   // buf[3] = 0x02;
+//   // buf[4] = 0x01;
+//   // buf[5] = 0xFB;
+//   // writer.write(buf);
 
-  term.writeln('send:' + data);
+//   term.writeln('send:' + data);
 
-  // data = "FF FF 01 02 01 FB" 转 Uint8Array
-  const dataArr = data.split(' ').map((byte) => parseInt(byte, 16));
-  const buf = new Uint8Array(dataArr);
-  writer.write(buf);
+//   // data = "FF FF 01 02 01 FB" 转 Uint8Array
+//   const dataArr = data.split(' ').map((byte) => parseInt(byte, 16));
+//   const buf = new Uint8Array(dataArr);
+//   writer.write(buf);
 
-  // writer.write(encoder.encode(data));
+//   // writer.write(encoder.encode(data));
 
-  writer.releaseLock();
-});
+//   writer.releaseLock();
+// });
 
 /**
  * Returns the option corresponding to the given SerialPort if one is present
@@ -263,7 +263,7 @@ function getSelectedBaudRate(): number {
  * Resets the UI back to the disconnected state.
  */
 function markDisconnected(): void {
-  term.writeln('<DISCONNECTED>');
+  // term.writeln('<DISCONNECTED>');
   portSelector.disabled = false;
   connectButton.textContent = 'Connect';
   connectButton.disabled = false;
@@ -315,7 +315,7 @@ async function connectToPort(): Promise<void> {
 
   try {
     await port.open(options);
-    term.writeln('<CONNECTED>');
+    // term.writeln('<CONNECTED>');
     connectButton.textContent = 'Disconnect';
     connectButton.disabled = false;
 
@@ -347,7 +347,7 @@ async function connectToPort(): Promise<void> {
   } catch (e) {
     console.error(e);
     if (e instanceof Error) {
-      term.writeln(`<ERROR: ${e.message}>`);
+      // term.writeln(`<ERROR: ${e.message}>`);
     }
     markDisconnected();
     return;
@@ -397,7 +397,8 @@ async function connectToPort(): Promise<void> {
       console.error(e);
       await new Promise<void>((resolve) => {
         if (e instanceof Error) {
-          term.writeln(`<ERROR: ${e.message}>`, resolve);
+          // term.writeln(`<ERROR: ${e.message}>`, resolve);
+          console.error('ERROR: ' + e.message, resolve);
         }
       });
     } finally {
@@ -414,7 +415,7 @@ async function connectToPort(): Promise<void> {
     } catch (e) {
       console.error(e);
       if (e instanceof Error) {
-        term.writeln(`<ERROR: ${e.message}>`);
+        // term.writeln(`<ERROR: ${e.message}>`);
       }
     }
 
@@ -441,7 +442,7 @@ async function disconnectFromPort(): Promise<void> {
     } catch (e) {
       console.error(e);
       if (e instanceof Error) {
-        term.writeln(`<ERROR: ${e.message}>`);
+        // term.writeln(`<ERROR: ${e.message}>`);
       }
     }
   }
@@ -450,15 +451,15 @@ async function disconnectFromPort(): Promise<void> {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const terminalElement = document.getElementById('terminal');
-  if (terminalElement) {
-    term.open(terminalElement);
-    fitAddon.fit();
+  // const terminalElement = document.getElementById('terminal');
+  // if (terminalElement) {
+  //   term.open(terminalElement);
+  //   fitAddon.fit();
 
-    window.addEventListener('resize', () => {
-      fitAddon.fit();
-    });
-  }
+  //   window.addEventListener('resize', () => {
+  //     fitAddon.fit();
+  //   });
+  // }
 
   // const downloadOutput =
   //   document.getElementById('download') as HTMLSelectElement;
