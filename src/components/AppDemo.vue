@@ -5,8 +5,8 @@
     <n-button @click="StopClick">
         停止同步
     </n-button> 
-    <n-flex size="small">
-        <div v-for="(value, key) in scsobjs" :key="key" style="width: 33%;">
+    <n-flex>
+        <div v-for="(value, key) in scsobjs" :key="key" style="height: 33%;">
             <canvas v-if="value != -1" :id="key"></canvas>
         </div>
     </n-flex>
@@ -17,13 +17,16 @@
 import { ref, reactive } from 'vue';
 import Chart from 'chart.js/auto'
 
+declare let Module: any;
+
 // ================== 设备工作区间 ==================
 
 const device_min = 1, device_max = device_min + 14;
 let scsobjs = reactive({}); // 局部，会产生作用域问题
 let scswork = false;
 let scsexit = false;
-let scsdata = {}; // 全局数据
+let scsdata = {}; // 全局 read 数据
+let scscall = []; // 全局 write 数据
 
 async function findDevice() {
     if (scswork) {
@@ -39,6 +42,22 @@ async function findDevice() {
 const data_name = ["位置", "速度", "负载", "电压", "温度", "电流"];
 
 async function getScsData(i) {
+    
+    try {
+        while (scscall.length > 0) {
+            let func = scscall[0][0];
+            let args = scscall[0][1];
+            let ret = await Module[func](...args);
+            console.log('setScsData', func, args, ret);
+            scscall.shift();
+        }
+    } catch (e) {
+        console.log('setScsData', e);
+        while (scscall.length > 0) {
+            scscall.shift();
+        }
+    }
+    // console.log('getScsData', i);
     let data = [];
     data.push(await Module.scsReadPos(i));
     data.push(await Module.scsReadSpeed(i));
@@ -49,10 +68,10 @@ async function getScsData(i) {
     return data;
 }
 
-async function setScsData(i) {
-    // 
-    // 此处加入写操作，确保同一时刻只有一个函数操作硬件
-    console.log('setScsData', i);
+// Module.setScsData("scsWritePosEx", 2, 2047, 0, 0);
+Module.setScsData = (func, ...args) => {
+    // console.log('callCmd', func, args);
+    scscall.push([func, args]);
 }
 
 async function runScsData(func_update) {
@@ -64,7 +83,6 @@ async function runScsData(func_update) {
     Module.config(10, 20, 30); // 约等于 14sum*8data*10ms=1120ms
 
     while (!scsexit) {
-        // for (let key in scsdevs) {
         for (let key in scsobjs) {
             if (scsobjs[key] == -1) {
                 continue;
@@ -75,7 +93,6 @@ async function runScsData(func_update) {
                 // console.log(key, data);
                 scsdata[key] = data;
             });
-            await setScsData(i);
         }
         func_update();
     }
@@ -100,7 +117,7 @@ async function stopScsData() {
 // ================== 图表工作区间 ==================
 
 let scsdevs = {}; // 全局图表
-const data_limit = 64;
+const data_limit = 32;
 
 async function createChart() {
 
@@ -157,8 +174,8 @@ async function deleteChart() {
 
 async function updateChart() {
 
-    // console.log(scsdata);
-    // console.log(new Date().getTime()); // 240ms 6*8 5ms
+    console.log(scsdata);
+    console.log(new Date().getTime()); // 240ms 6*8 5ms
 
     for (let key in scsdata) {
         for (let j = 0; j < scsdata[key].length; j++) {
