@@ -9,14 +9,21 @@ const scsdata = {}; // 全局 read 数据
 const scscall = []; // 全局 write 数据
 
 async function findDevice() {
+    if (!Module['serial_wk'])
+    {
+        scswork = false;
+        return false; // 串口没配置
+    }
     if (scswork) {
         return scswork;
     }
-    scswork = true;
     Module.config(10, 20, 30);
     for (let i = device_min; i < device_max; i++) {
         scsobjs["dev_id_" + i] = await Module.scsPing(i);
         // console.log('findDevice', scsobjs);
+        if (scsobjs["dev_id_" + i] != -1) {
+            scswork = true; // 串口设备不正确或确实没有设备
+        }
     }
     return scswork;
 }
