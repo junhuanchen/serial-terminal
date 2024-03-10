@@ -49,6 +49,8 @@ module.exports = {
     'indent': ['off', 4], // https://blog.csdn.net/qq_35132089/article/details/105887879
     "@typescript-eslint/no-explicit-any": "off",
     "vue/no-multiple-template-root": "off",
+    'vue/valid-v-model': 'off',
+    "vue/no-v-model-argument": "off",
     "max-len": ["error", { "code": 256 }],
     "@typescript-eslint/ban-types": [
       "error",

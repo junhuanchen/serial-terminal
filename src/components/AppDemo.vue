@@ -1,15 +1,23 @@
 <template>
-    <n-button @click="SyncClick">
-        开始同步
-    </n-button>
-    <n-button @click="StopClick">
-        停止同步
-    </n-button> 
-    <n-flex>
-        <div v-for="(value, key) in scsobjs" :key="key" style="height: 33%;">
-            <canvas v-if="value != -1" :id="key"></canvas>
-        </div>
-    </n-flex>
+    <n-card>
+        <n-collapse>
+            <n-collapse-item title="数据图表" >
+            <div>
+                <n-button @click="SyncClick">
+                    开始同步
+                </n-button>
+                <n-button @click="StopClick">
+                    停止同步
+                </n-button>
+                <n-flex >
+                    <div v-for="(value, key) in scsobjs" :key="key" style="width: 30%;">
+                        <canvas v-if="value != -1" :id="key"></canvas>
+                    </div>
+                </n-flex>
+            </div>
+            </n-collapse-item>
+        </n-collapse>
+    </n-card>
 </template>
 
 <script setup lang="ts">
@@ -129,8 +137,10 @@ async function createChart() {
             const ctx = document.getElementById(key);
             const config = {
                 type: 'scatter',
-                data: {},
                 options: {
+                    spanGaps: false, // enable for all datasets
+                    normalized: true,
+                    animation: false,
                     plugins: {
                         title: {
                             display: true,
@@ -138,20 +148,24 @@ async function createChart() {
                         }
                     },
                     responsive: true, // 设置图表为响应式，根据屏幕窗口变化而变化
-                    maintainAspectRatio: true, // 设置图表为不变形
-                    // aspectRatio: 4, // 设置图表宽高比
+                    maintainAspectRatio: false, // 设置图表为不变形
+                    aspectRatio: 1, // 设置图表宽高比
                     scales: {
                         x: {
                             display: false,
                         },
                         y: {
-                            // beginAtZero: true,
-                            grace: 4095,
+                            beginAtZero: true,
+                            grace: 4095 / 2,
+                            min: 0,
+                            max: 4095,
                         },
                         myScale: {
-                            beginAtZero: true,
-                            grace: 4095,
+                            // beginAtZero: true,
+                            // grace: 4095 / 2,
                             position: 'right', // `axis` is determined by the position as `'y'`
+                            min: -2047,
+                            max: 2047,
                         }
                     },
                 }
