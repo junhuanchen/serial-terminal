@@ -50,6 +50,9 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "vue/no-multiple-template-root": "off",
     'vue/valid-v-model': 'off',
+    'vue/html-indent': 'off',
+    'vue/max-attributes-per-line': 'off',
+    'vue/singleline-html-element-content-newline': 'off',
     "vue/no-v-model-argument": "off",
     "max-len": ["error", { "code": 256 }],
     "@typescript-eslint/ban-types": [
