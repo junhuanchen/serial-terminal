@@ -68,17 +68,112 @@
             <div id="terminal" hidden></div>
 
         </div>
+
+        <div>
+            <br>
+            <n-button @click="parseButton">Parse</n-button>
+            <n-button @click="stepButton" :disabled="isButtonDisabled">Step</n-button>
+            <n-button @click="runButton" :disabled="isButtonDisabled">Run</n-button>
+            <br>
+            <textarea ref="code_edit_ref" v-model="code_text" spellcheck="false" style="width: 100%; height: 200px;" >
+            </textarea>
+        </div>
+
     </n-card>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
 
-export default defineComponent({
-    setup() {
-        return {
-            
+import { ref, onMounted, getCurrentInstance } from 'vue';
+
+var myInterpreter;
+function initAlert(interpreter, globalObject) {
+    var wrapper = function alert(text) {
+        return window.alert(arguments.length ? text : '');
+    };
+    interpreter.setProperty(globalObject, 'alert',
+        interpreter.createNativeFunction(wrapper));
+    interpreter.setProperty(globalObject, 'log',
+        interpreter.createNativeFunction(console.log));
+    interpreter.setProperty(globalObject, 'setScsData',
+        interpreter.createNativeFunction(Module.setScsData));
+}
+
+let isButtonDisabled = ref(true);
+let code_text = ref("\
+setScsData('scsWritePosEx', 2, 4000, 0, 0);\n\n\
+setScsData('scsWritePosEx', 2, 1000, 0, 0);\n\n\
+setScsData('scsWritePosEx', 2, 4000, 0, 0);\n\n\
+setScsData('scsWritePosEx', 2, 3000, 0, 0);\n\n\
+");
+
+const parseButton = () => {
+    console.log(code_text.value);
+    myInterpreter = new Interpreter(code_text.value, initAlert);
+    isButtonDisabled.value = false;
+    // runButton();
+}
+
+const stepButton = () => {
+    var stack = myInterpreter.getStateStack();
+    if (stack.length) {
+        var node = stack[stack.length - 1].node;
+        var start = node.start;
+        var end = node.end;
+    }
+    else {
+        var start = 0;
+        var end = 0;
+    }
+    createSelection(start, end);
+    try {
+        // var ok = myInterpreter.step();
+        var ok = false;
+        function nextStep() {
+            ok = myInterpreter.step();
+            if (ok) {
+                setTimeout(nextStep, 10);
+            }
+        }
+        nextStep();
+    } catch (e) {
+        console.log(e);
+    } finally {
+        if (!ok) {
+            isButtonDisabled.value = true;
         }
     }
-})
+}
+
+const runButton = () => {
+    try {
+        if (myInterpreter.run()) {
+            // Async function hit.  There's more code to run.
+            setTimeout(runButton, 100);
+        }
+    } catch (e) {
+        console.log(e);
+    } finally {
+        // isButtonDisabled.value = true;
+    }
+}
+
+const code_edit_ref=ref();
+function createSelection(start, end) {
+    // console.log(code_edit_ref.value);
+    if (code_edit_ref.value.createTextRange) {
+        var selRange = code_edit_ref.value.createTextRange();
+        selRange.collapse(true);
+        selRange.moveStart('character', start);
+        selRange.moveEnd('character', end);
+        selRange.select();
+    } else if (code_edit_ref.value.setSelectionRange) {
+        code_edit_ref.value.setSelectionRange(start, end);
+    } else if (code_edit_ref.value.selectionStart) {
+        code_edit_ref.value.selectionStart = start;
+        code_edit_ref.value.selectionEnd = end;
+    }
+    code_edit_ref.value.focus();
+}
+
 </script>

@@ -15,12 +15,15 @@
   <script>
     var Module = {
       onRuntimeInitialized: function () {
-        console.log('dls init: ' + Module.config(10, 20, 30));
+        console.log('scslib version: ' + Module.version());
       }
     };
   </script>
   <script src="release/scslib.js"></script>
 
+  <script src="interpreter/acorn_interpreter.js"></script>
+
+<!-- 
   <script src="blockly/blockly_compressed.js"></script>
   <script src="blockly/blocks_compressed.js"></script>
   <script src="blockly/javascript_compressed.js"></script>
@@ -211,8 +214,9 @@
       }
     }
   </script>
+-->
 
-  <!-- 
+<!-- 
   <hr>
 
   <div class="options">

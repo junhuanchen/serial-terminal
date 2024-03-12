@@ -19,7 +19,7 @@
 import { defineComponent } from 'vue'
 import { useMessage } from 'naive-ui'
 
-import { runScsData, stopScsData, findDevice, scswork, setScsData } from '../utils/scs';
+import { runScsData, stopScsData, findDevice, setScsData, scswork, scsobjs } from '../utils/scs';
 
 async function ScsStart() {
   if (scswork) {
@@ -55,12 +55,22 @@ export default defineComponent({
         message.info('Button ScsStop');
       },
       handleClick3() {
-        setScsData("scsWritePosEx", 2, 0, 0, 0);
-        message.info('Button scsWritePosEx 2, 0, 0, 0');
+        setScsData("scsWritePosEx", 2, 5, 0, 0);
+        message.info('Button scsWritePosEx 2, 5, 0, 0');
       },
       handleClick4() {
-        setScsData("scsWritePosEx", 2, 4095, 0, 0);
-        message.info('Button scsWritePosEx 2, 4095, 0, 0');
+        setScsData("scsWritePosEx", 2, 4090, 0, 0);
+        message.info('Button scsWritePosEx 2, 4090, 0, 0');
+        
+        // 延时一秒后执行
+        for (let i in scsobjs) {
+          setScsData("scsWritePosEx", i, 5, 0, 0);
+        }
+        setTimeout(() => {
+          for (let i in scsobjs) {
+            setScsData("scsWritePosEx", i, 4095, 0, 0);
+          }
+        }, 1000);
       }
     }
   }
